@@ -15,14 +15,11 @@ detectPCKM() {
         if command -v brew &> /dev/null; then
             brew_version=$(brew -v)
             if [[ $brew_version == *"Homebrew"* ]]; then
-                brew update &> /dev/null
-                brew upgrade &> /dev/null
                 PCKM="brew"
             fi
         fi
     elif [[ "$OS" == "Linux" ]]; then
         if command -v apt &> /dev/null; then
-            sudo apt-get update &> /dev/null && sudo apt-get upgrade -y &> /dev/null
             PCKM="apt"
         fi
     fi
