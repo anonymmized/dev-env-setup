@@ -9,7 +9,47 @@ detectOS() {
     esac
 }
 
-main() {
+detectPCKM() {
+    detectOS
+    if [[ "$OS" == "MacOS" ]]; then
+        if command -v brew &> /dev/null; then
+            brew_version=$(brew -v)
+            if [[ $brew_version == *"Homebrew"* ]]; then
+                brew update &> /dev/null
+                brew upgrade &> /dev/null
+                PCKM="brew"
+            fi
+        fi
+    elif [[ "$OS" == "Linux" ]]; then
+        if command -v apt &> /dev/null; then
+            sudo apt-get update &> /dev/null && sudo apt-get upgrade -y &> /dev/null
+            PCKM="apt"
+        fi
+    fi
+}
+
+git_install() {
+    detectPCKM
+    if [[ "$PCKM" == "brew" ]]; then
+        if ! command -v git &> /dev/null; then
+            brew install git
+            echo "<Git is installed>"
+        else
+            echo "<Git is already installed>"
+        fi
+    elif [[ "$PCKM" == "apt" ]]; then
+        if ! command -v git &> /dev/null; then
+            sudo apt-get install git -y
+            echo "<Git is installed>"
+        else
+            echo "<Git is already installed>"
+        fi
+    else
+        echo "The program does not seem to support your package manager yet"
+    fi
+}
+
+update_packages() {
     detectOS
     echo "Detected OS: $OS"
 
@@ -22,6 +62,7 @@ main() {
                 brew upgrade &> /dev/null
                 echo "All Homebrew packages have been updated"
                 echo $brew_version
+                PCKM="brew"
             fi
         fi
     elif [[ "$OS" == "Linux" ]]; then
@@ -30,11 +71,12 @@ main() {
             echo "APT found, updating packages..."
             sudo apt-get update &> /dev/null && sudo apt-get upgrade -y &> /dev/null
             echo "All apt packages have been updated"
-
-        # elif 
+            PCKM="apt"
         fi
     else
         echo "Unsupported OS: $OS"
     fi
+    git_install
 }
-main
+update_packages
+git_install
