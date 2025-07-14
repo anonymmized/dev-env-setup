@@ -34,13 +34,16 @@ git_install() {
         if ! command -v git &> /dev/null; then
             brew install git
             echo "<Git is installed>"
+            exit 0
         else
             echo "<Git is already installed>"
+            exit 0
         fi
     elif [[ "$PCKM" == "apt" ]]; then
         if ! command -v git &> /dev/null; then
             sudo apt-get install git -y
             echo "<Git is installed>"
+            exit 0
         else
             echo "<Git is already installed>"
         fi
@@ -76,7 +79,6 @@ update_packages() {
     else
         echo "Unsupported OS: $OS"
     fi
-    git_install
 }
 update_packages
 git_install
