@@ -1,7 +1,7 @@
 #!/bin/bash
 
 detectOS() {
-    case "${uname}" in 
+    case "$(uname)" in 
         Darwin) OS="MacOS" ;;
         Linux) OS="Linux" ;;
         MINGW*|CYGWIN*) OS="MSWin" ;;
