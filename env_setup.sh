@@ -32,23 +32,39 @@ git_install() {
     detectPCKM
     if [[ "$PCKM" == "brew" ]]; then
         if ! command -v git &> /dev/null; then
-            brew install git
-            echo "<Git is installed>"
-            exit 0
+            brew install git &> /dev/null
+            echo "Git is installed"
         else
-            echo "<Git is already installed>"
-            exit 0
+            echo "Git is already installed"
         fi
     elif [[ "$PCKM" == "apt" ]]; then
         if ! command -v git &> /dev/null; then
-            sudo apt-get install git -y
-            echo "<Git is installed>"
-            exit 0
+            sudo apt-get install git -y &> /dev/null
+            echo "Git is installed"
         else
-            echo "<Git is already installed>"
+            echo "Git is already installed"
         fi
     else
         echo "The program does not seem to support your package manager yet"
+    fi
+}
+
+curl_install() {
+    detectPCKM
+    if [[ "$PCKM" == "brew" ]]; then
+        if ! command -V curl &> /dev/null; then
+            brew install curl &> /dev/null
+            echo "Curl is installed"
+        else
+            echo "Curl is already installed"
+        fi
+    elif [[ "$PCKM" == "apt" ]]; then
+        if ! command -V curl &> /dev/null; then
+            sudo apt-get install curl &> /dev/null
+            echo "Curl is installed"
+        else
+            echo "Curl is already installed"
+        fi
     fi
 }
 
@@ -80,5 +96,6 @@ update_packages() {
         echo "Unsupported OS: $OS"
     fi
 }
-update_packages
+# update_packages
 git_install
+curl_install
