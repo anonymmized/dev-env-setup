@@ -8,8 +8,11 @@ detectOS() {
         *) OS="Unknown" ;;
     esac
 }
+
 detectOS
-if [[ OS=="MacOS" ]]; then
+echo "Detected OS: $OS"
+
+if [[ "$OS" == "MacOS" ]]; then
     if command -v brew &> /dev/null; then
         brew_version=$(brew -v)
         if [[ $brew_version == *"Homebrew"* ]]; then
