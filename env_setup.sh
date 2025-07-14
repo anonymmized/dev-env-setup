@@ -21,8 +21,14 @@ if [[ OS=="MacOS" ]]; then
         fi
     fi
 elif [[ "$OS" == "Linux" ]]; then
+    echo "Running Linux setup..."
     if command -v apt &> /dev/null; then
-        sudo apt-get update &> /dev/null && sudo apt-get upgrade &> /dev/null && sudo apt-get dist-upgrade &> /dev/null
+        echo "APT found, updating packages..."
+        sudo apt-get update &> /dev/null && sudo apt-get upgrade -y &> /dev/null
         echo "All apt packages have been updated"
+    else
+        echo "APT not found"
     fi
+else
+    echo "Unsupported OS: $OS"
 fi
