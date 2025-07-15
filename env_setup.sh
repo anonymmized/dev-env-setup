@@ -25,43 +25,38 @@ detectPCKM() {
     fi
 }
 
-git_install() {
+packages_install() {
     detectPCKM
     if [[ "$PCKM" == "brew" ]]; then
-        if ! command -v git &> /dev/null; then
-            brew install git &> /dev/null
-            echo "Git is installed"
-        else
-            echo "Git is already installed"
-        fi
+        brew install git &> /dev/null
+        echo "Git is installed"
+        brew install curl &> /dev/null
+        echo "Curl is installed"
+        brew install node &> /dev/null
+        echo "Node.js is installed"
+        brew install python3 &> /dev/null
+        echo "Python is installed"
+        brew install docker &> /dev/null
+        echo "Docker is installed"
+
     elif [[ "$PCKM" == "apt" ]]; then
-        if ! command -v git &> /dev/null; then
-            sudo apt-get install git -y &> /dev/null
-            echo "Git is installed"
-        else
-            echo "Git is already installed"
-        fi
+        sudo apt-get install git -y &> /dev/null
+        echo "Git is installed"
+        sudo apt-get install curl -y &> /dev/null
+        echo "Curl is installed"
+        sudo apt-get install nodejs -y &> /dev/null
+        echo "Node.js is installed"
+        sudo apt-get install python3 -y &> /dev/null
+        echo "Python is installed"
+        sudo apt-get install curl software-properties-common ca-certificates apt-transport-https -y &> /dev/null
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        apt-cache policy docker-ce
+        sudo apt-get install docker-ce -y
+        sudo systemctl status docker
+        echo "Docker is installed"
     else
         echo "The program does not seem to support your package manager yet"
-    fi
-}
-
-curl_install() {
-    detectPCKM
-    if [[ "$PCKM" == "brew" ]]; then
-        if ! command -V curl &> /dev/null; then
-            brew install curl &> /dev/null
-            echo "Curl is installed"
-        else
-            echo "Curl is already installed"
-        fi
-    elif [[ "$PCKM" == "apt" ]]; then
-        if ! command -V curl &> /dev/null; then
-            sudo apt-get install curl &> /dev/null
-            echo "Curl is installed"
-        else
-            echo "Curl is already installed"
-        fi
     fi
 }
 
@@ -94,5 +89,4 @@ update_packages() {
     fi
 }
 # update_packages
-git_install
-curl_install
+packages_install
