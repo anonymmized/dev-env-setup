@@ -38,6 +38,15 @@ packages_install() {
         echo "Python is installed"
         brew install docker &> /dev/null
         echo "Docker is installed"
+        brew install htop &> /dev/null
+        echo "Htop is installed"
+        brew install tree &> /dev/null
+        echo "Tree is installed"
+        echo "====================="
+        echo "Installing vscode..."
+        echo "====================="
+        brew install --cask visual-studio-code &> /dev/null
+        echo "vscode is installed"
 
     elif [[ "$PCKM" == "apt" ]]; then
         sudo apt-get install git -y &> /dev/null
@@ -55,6 +64,15 @@ packages_install() {
         sudo apt-get install docker-ce -y
         sudo systemctl status docker
         echo "Docker is installed"
+        sudo apt-get install htop &> /dev/null
+        echo "Htop is installed"
+        sudo apt-get install tree &> /dev/null
+        echo "Tree is installed"
+        echo "====================="
+        echo "Installing vscode..."
+        echo "====================="
+        sudo apt-get install code &> /dev/null
+        echo "vscode is installed"
     else
         echo "The program does not seem to support your package manager yet"
     fi
