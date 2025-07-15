@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Global variables
+OS=""
+PCKM=""
+
 detectOS() {
     case "$(uname)" in 
         Darwin) OS="MacOS" ;;
@@ -13,97 +17,131 @@ detectPCKM() {
     detectOS
     if [[ "$OS" == "MacOS" ]]; then
         if command -v brew &> /dev/null; then
-            brew_version=$(brew -v)
-            if [[ $brew_version == *"Homebrew"* ]]; then
-                PCKM="brew"
-            fi
+            PCKM="brew"
         fi
     elif [[ "$OS" == "Linux" ]]; then
         if command -v apt &> /dev/null; then
             PCKM="apt"
+        elif command -v dnf &> /dev/null; then
+            PCKM="dnf"
+        elif command -v yum &> /dev/null; then
+            PCKM="yum"
+        fi
+    fi
+}
+
+install_package() {
+    local package_name="$1"
+    local display_name="$2"
+    
+    if [[ "$PCKM" == "brew" ]]; then
+        if ! command -v "$package_name" &> /dev/null; then
+            brew install "$package_name" &> /dev/null
+            echo "$display_name is installed"
+        else
+            echo "$display_name is already installed"
+        fi
+    elif [[ "$PCKM" == "apt" ]]; then
+        if ! command -v "$package_name" &> /dev/null; then
+            sudo apt-get install "$package_name" -y &> /dev/null
+            echo "$display_name is installed"
+        else
+            echo "$display_name is already installed"
         fi
     fi
 }
 
 packages_install() {
     detectPCKM
+    
+    if [[ "$PCKM" == "" ]]; then
+        echo "No supported package manager found"
+        return 1
+    fi
+    
+    echo "Installing packages using $PCKM..."
+    
+    # Install basic tools
+    install_package "git" "Git"
+    install_package "curl" "Curl"
+    install_package "htop" "Htop"
+    install_package "tree" "Tree"
+    
+    # Install development tools
     if [[ "$PCKM" == "brew" ]]; then
-        brew install git &> /dev/null
-        echo "Git is installed"
-        brew install curl &> /dev/null
-        echo "Curl is installed"
-        brew install node &> /dev/null
-        echo "Node.js is installed"
-        brew install python3 &> /dev/null
-        echo "Python is installed"
-        brew install docker &> /dev/null
-        echo "Docker is installed"
-        brew install htop &> /dev/null
-        echo "Htop is installed"
-        brew install tree &> /dev/null
-        echo "Tree is installed"
+        install_package "node" "Node.js"
+        install_package "python3" "Python"
+        install_package "docker" "Docker"
+        
         echo "====================="
-        echo "Installing vscode..."
+        echo "Installing VS Code..."
         echo "====================="
-        brew install --cask visual-studio-code &> /dev/null
-        echo "vscode is installed"
-
+        if ! command -v code &> /dev/null; then
+            brew install --cask visual-studio-code &> /dev/null
+            echo "VS Code is installed"
+        else
+            echo "VS Code is already installed"
+        fi
+        
     elif [[ "$PCKM" == "apt" ]]; then
-        sudo apt-get install git -y &> /dev/null
-        echo "Git is installed"
-        sudo apt-get install curl -y &> /dev/null
-        echo "Curl is installed"
-        sudo apt-get install nodejs -y &> /dev/null
-        echo "Node.js is installed"
-        sudo apt-get install python3 -y &> /dev/null
-        echo "Python is installed"
-        sudo apt-get install curl software-properties-common ca-certificates apt-transport-https -y &> /dev/null
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg &> /dev/null
-        apt-cache policy docker-ce
-        sudo apt-get install docker-ce -y
-        sudo systemctl status docker
-        echo "Docker is installed"
-        sudo apt-get install htop &> /dev/null
-        echo "Htop is installed"
-        sudo apt-get install tree &> /dev/null
-        echo "Tree is installed"
+        install_package "nodejs" "Node.js"
+        install_package "python3" "Python"
+        
+        # Docker installation for Ubuntu/Debian
+        if ! command -v docker &> /dev/null; then
+            sudo apt-get install docker.io -y &> /dev/null
+            echo "Docker is installed"
+        else
+            echo "Docker is already installed"
+        fi
+        
         echo "====================="
-        echo "Installing vscode..."
+        echo "Installing VS Code..."
         echo "====================="
-        sudo apt-get install code &> /dev/null
-        echo "vscode is installed"
-    else
-        echo "The program does not seem to support your package manager yet"
+        if ! command -v code &> /dev/null; then
+            # Add Microsoft GPG key and repository
+            curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg &> /dev/null
+            echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list &> /dev/null
+            sudo apt-get update &> /dev/null
+            sudo apt-get install code -y &> /dev/null
+            echo "VS Code is installed"
+        else
+            echo "VS Code is already installed"
+        fi
     fi
 }
 
 update_packages() {
-    detectOS
+    detectPCKM
     echo "Detected OS: $OS"
 
-    if [[ "$OS" == "MacOS" ]]; then
-        if command -v brew &> /dev/null; then
-            brew_version=$(brew -v)
-            if [[ $brew_version == *"Homebrew"* ]]; then
-                brew update &> /dev/null
-                echo "Processing..."
-                brew upgrade &> /dev/null
-                echo "All Homebrew packages have been updated"
-                echo $brew_version
-                PCKM="brew"
-            fi
-        fi
-    elif [[ "$OS" == "Linux" ]]; then
-        echo "Running Linux setup..."
-        if command -v apt &> /dev/null; then
-            echo "APT found, updating packages..."
-            sudo apt-get update &> /dev/null && sudo apt-get upgrade -y &> /dev/null
-            echo "All apt packages have been updated"
-            PCKM="apt"
-        fi
+    if [[ "$PCKM" == "brew" ]]; then
+        echo "Updating Homebrew packages..."
+        brew update &> /dev/null
+        brew upgrade &> /dev/null
+        echo "All Homebrew packages have been updated"
+        
+    elif [[ "$PCKM" == "apt" ]]; then
+        echo "Updating APT packages..."
+        sudo apt-get update &> /dev/null && sudo apt-get upgrade -y &> /dev/null
+        echo "All APT packages have been updated"
+        
+    elif [[ "$PCKM" == "dnf" ]]; then
+        echo "Updating DNF packages..."
+        sudo dnf update -y &> /dev/null
+        echo "All DNF packages have been updated"
+        
+    elif [[ "$PCKM" == "yum" ]]; then
+        echo "Updating YUM packages..."
+        sudo yum update -y &> /dev/null
+        echo "All YUM packages have been updated"
+        
     else
-        echo "Unsupported OS: $OS"
+        echo "No supported package manager found"
+        return 1
     fi
 }
-# update_packages
+
+# Main execution
+update_packages
 packages_install
