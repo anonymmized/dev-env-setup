@@ -58,8 +58,7 @@ packages_install() {
         sudo apt-get install python3 -y &> /dev/null
         echo "Python is installed"
         sudo apt-get install curl software-properties-common ca-certificates apt-transport-https -y &> /dev/null
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg &> /dev/null
         apt-cache policy docker-ce
         sudo apt-get install docker-ce -y
         sudo systemctl status docker
