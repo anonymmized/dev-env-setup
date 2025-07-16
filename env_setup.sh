@@ -2,18 +2,47 @@
 
 OS=""
 PCKM=""
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+NC='\033[0m'
+
+print_success() {
+    echo -e "${GREEN}✓ $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}✗ $1${NC}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠ $1${NC}"
+}
+
+print_info() {
+    echo -e "${BLUE}ℹ $1${NC}"
+}
+
+print_header() {
+    echo -e "${PURPLE}=== $1 ===${NC}"
+}
 
 show_help() {
-    echo "System Quick Setup Script"
-    echo "Usage: $0 [OPTIONS]"
-    echo "Options: "
-    echo "  --help     Show this help message"
-    echo "  --basic    Install only basic packages (git, curl, htop)"
-    echo "  --dev      Install development tools (node, python, docker, vim)"
-    echo "  --full     Full installation including VS Code"
-    echo "  --update   Update existing packages only"
-    echo "  --dry-run  Show what will be installed without the actual installation"
+    print_info "System Quick Setup Script"
+    print_info "Usage: $0 [OPTIONS]"
+    print_info "Options: "
+    print_info "  --help     Show this help message"
+    print_info "  --basic    Install only basic packages (git, curl, htop)"
+    print_info "  --dev      Install development tools (node, python, docker, vim)"
+    print_info "  --full     Full installation including VS Code"
+    print_info "  --update   Update existing packages only"
+    print_info "  --dry-run  Show what will be installed without the actual installation"
 }
+
 detectOS() {
     case "$(uname)" in 
         Darwin) OS="MacOS" ;;
@@ -47,47 +76,47 @@ install_package() {
     if [[ "$PCKM" == "brew" ]]; then
         if ! command -v "$package_name" &> /dev/null; then
             brew install "$package_name" &> /dev/null
-            echo "$display_name is installed"
+            print_success "$display_name is installed"
         else
-            echo "$display_name is already installed"
+            print_success "$display_name is already installed"
         fi
     elif [[ "$PCKM" == "apt" ]]; then
         if ! command -v "$package_name" &> /dev/null; then
             sudo apt-get install "$package_name" -y &> /dev/null
-            echo "$display_name is installed"
+            print_success "$display_name is installed"
         else
-            echo "$display_name is already installed"
+            print_success "$display_name is already installed"
         fi
     fi
 }
 
 update_packages() {
     detectPCKM
-    echo "Detected OS: $OS"
+    print_info "Detected OS: $OS"
 
     if [[ "$PCKM" == "brew" ]]; then
-        echo "Updating Homebrew packages..."
+        print_info "Updating Homebrew packages..."
         brew update &> /dev/null
         brew upgrade &> /dev/null
-        echo "All Homebrew packages have been updated"
+        print_success "All Homebrew packages have been updated"
         
     elif [[ "$PCKM" == "apt" ]]; then
-        echo "Updating APT packages..."
+        print_info "Updating APT packages..."
         sudo apt-get update &> /dev/null && sudo apt-get upgrade -y &> /dev/null
-        echo "All APT packages have been updated"
+        print_success "All APT packages have been updated"
         
     elif [[ "$PCKM" == "dnf" ]]; then
-        echo "Updating DNF packages..."
+        print_info "Updating DNF packages..."
         sudo dnf update -y &> /dev/null
-        echo "All DNF packages have been updated"
+        print_success "All DNF packages have been updated"
         
     elif [[ "$PCKM" == "yum" ]]; then
-        echo "Updating YUM packages..."
+        print_info "Updating YUM packages..."
         sudo yum update -y &> /dev/null
-        echo "All YUM packages have been updated"
+        print_success "All YUM packages have been updated"
         
     else
-        echo "No supported package manager found"
+        print_error "No supported package manager found"
         return 1
     fi
 }
@@ -95,11 +124,11 @@ update_packages() {
 basic_setup() {
     detectPCKM
     if [[ "$PCKM" == "" ]]; then
-        echo "No supported package manager found"
+        print_error "No supported package manager found"
         return 1
     fi
     
-    echo "Installing packages using $PCKM..."
+    print_info "Installing packages using $PCKM..."
     
     install_package "git" "Git"
     install_package "curl" "Curl"
@@ -110,11 +139,11 @@ basic_setup() {
 dev_setup() {
     detectPCKM
     if [[ "$PCKM" == "" ]]; then
-        echo "No supported package manager found"
+        print_error "No supported package manager found"
         return 1
     fi
 
-    echo "Installing packages using $PCKM..."
+    print_info "Installing packages using $PCKM..."
 
     if [[ "$PCKM" == "brew" ]]; then
         install_package "node" "Node.js"
@@ -127,9 +156,9 @@ dev_setup() {
         echo "====================="
         if ! command -v code &> /dev/null; then
             brew install --cask visual-studio-code &> /dev/null
-            echo "VS Code is installed"
+            print_success "VS Code is installed"
         else
-            echo "VS Code is already installed"
+            print_success "VS Code is already installed"
         fi
     elif [[ "$PCKM" == "apt" ]]; then
         install_package "nodejs" "Node.js"
@@ -138,23 +167,22 @@ dev_setup() {
     
         if ! command -v docker &> /dev/null; then
             sudo apt-get install docker.io -y &> /dev/null
-            echo "Docker is installed"
+            print_success "Docker is installed"
         else
-            echo "Docker is already installed"
+            print_success "Docker is already installed"
         fi
         
-        echo "====================="
-        echo "Installing VS Code..."
-        echo "====================="
+        print_info "====================="
+        print_info "Installing VS Code..."
+        print_info "====================="
         if ! command -v code &> /dev/null; then
 
             curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg &> /dev/null
-            echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list &> /dev/null
             sudo apt-get update &> /dev/null
             sudo apt-get install code -y &> /dev/null
-            echo "VS Code is installed"
+            print_success "VS Code is installed"
         else
-            echo "VS Code is already installed"
+            print_success "VS Code is already installed"
         fi
     fi
 }
@@ -162,12 +190,12 @@ dev_setup() {
 full_setup() {
     detectPCKM
     if [[ "$PCKM" == "" ]]; then
-        echo "No supported package manager found"
+        print_error "No supported package manager found"
         return 1
     fi
 
-    echo "Installation of all tools"
-    echo "Installing packages using $PCKM..."
+    print_info "Installation of all tools"
+    print_info "Installing packages using $PCKM..."
 
     install_package "git" "Git"
     install_package "curl" "Curl"
@@ -179,14 +207,14 @@ full_setup() {
         install_package "python3" "Python"
         install_package "docker" "Docker"
         
-        echo "====================="
-        echo "Installing VS Code..."
-        echo "====================="
+        print_info "====================="
+        print_info "Installing VS Code..."
+        print_info "====================="
         if ! command -v code &> /dev/null; then
             brew install --cask visual-studio-code &> /dev/null
-            echo "VS Code is installed"
+            print_success "VS Code is installed"
         else
-            echo "VS Code is already installed"
+            print_success "VS Code is already installed"
         fi
     elif [[ "$PCKM" == "apt" ]]; then
         install_package "nodejs" "Node.js"
@@ -194,38 +222,37 @@ full_setup() {
     
         if ! command -v docker &> /dev/null; then
             sudo apt-get install docker.io -y &> /dev/null
-            echo "Docker is installed"
+            print_success "Docker is installed"
         else
-            echo "Docker is already installed"
+            print_success "Docker is already installed"
         fi
         
-        echo "====================="
-        echo "Installing VS Code..."
-        echo "====================="
+        print_info "====================="
+        print_info "Installing VS Code..."
+        print_info "====================="
         if ! command -v code &> /dev/null; then
 
             curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg &> /dev/null
-            echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list &> /dev/null
             sudo apt-get update &> /dev/null
             sudo apt-get install code -y &> /dev/null
-            echo "VS Code is installed"
+            print_success "VS Code is installed"
         else
-            echo "VS Code is already installed"
+            print_success "VS Code is already installed"
         fi
     fi
 }
 
 dry_run() {
-    echo "The packages that will be installed:"
-    echo "1)  Node.ls"
-    echo "2)  Python"
-    echo "3)  Vim"
-    echo "4)  Docker"
-    echo "5)  VScode"
-    echo "6)  Git"
-    echo "7)  Curl"
-    echo "8)  Htop"
-    echo "9)  Tree"
+    print_info "The packages that will be installed:"
+    print_info "1)  Node.ls"
+    print_info "2)  Python"
+    print_info "3)  Vim"
+    print_info "4)  Docker"
+    print_info "5)  VScode"
+    print_info "6)  Git"
+    print_info "7)  Curl"
+    print_info "8)  Htop"
+    print_info "9)  Tree"
 }
 
 while [[ $# -gt 0 ]]; do
