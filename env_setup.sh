@@ -61,66 +61,6 @@ install_package() {
     fi
 }
 
-packages_install() {
-    detectPCKM
-    
-    if [[ "$PCKM" == "" ]]; then
-        echo "No supported package manager found"
-        return 1
-    fi
-    
-    echo "Installing packages using $PCKM..."
-    
-    # Install basic tools
-    install_package "git" "Git"
-    install_package "curl" "Curl"
-    install_package "htop" "Htop"
-    install_package "tree" "Tree"
-    
-    # Install development tools
-    if [[ "$PCKM" == "brew" ]]; then
-        install_package "node" "Node.js"
-        install_package "python3" "Python"
-        install_package "docker" "Docker"
-        
-        echo "====================="
-        echo "Installing VS Code..."
-        echo "====================="
-        if ! command -v code &> /dev/null; then
-            brew install --cask visual-studio-code &> /dev/null
-            echo "VS Code is installed"
-        else
-            echo "VS Code is already installed"
-        fi
-        
-    elif [[ "$PCKM" == "apt" ]]; then
-        install_package "nodejs" "Node.js"
-        install_package "python3" "Python"
-        
-        # Docker installation for Ubuntu/Debian
-        if ! command -v docker &> /dev/null; then
-            sudo apt-get install docker.io -y &> /dev/null
-            echo "Docker is installed"
-        else
-            echo "Docker is already installed"
-        fi
-        
-        echo "====================="
-        echo "Installing VS Code..."
-        echo "====================="
-        if ! command -v code &> /dev/null; then
-            # Add Microsoft GPG key and repository
-            curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg &> /dev/null
-            echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list &> /dev/null
-            sudo apt-get update &> /dev/null
-            sudo apt-get install code -y &> /dev/null
-            echo "VS Code is installed"
-        else
-            echo "VS Code is already installed"
-        fi
-    fi
-}
-
 update_packages() {
     detectPCKM
     echo "Detected OS: $OS"
@@ -152,12 +92,86 @@ update_packages() {
     fi
 }
 
+basic_setup() {
+    detectPCKM
+    if [[ "$PCKM" == "" ]]; then
+        echo "No supported package manager found"
+        return 1
+    fi
+    
+    echo "Installing packages using $PCKM..."
+    
+    install_package "git" "Git"
+    install_package "curl" "Curl"
+    install_package "htop" "Htop"
+    install_package "tree" "Tree"
+}
+
+dev_setup() {
+    detectPCKM
+    if [[ "$PCKM" == "" ]]; then
+        echo "No supported package manager found"
+        return 1
+    fi
+
+    echo "Installing packages using $PCKM..."
+
+    if [[ "$PCKM" == "brew" ]]; then
+        install_package "node" "Node.js"
+        install_package "python3" "Python"
+        install_package "docker" "Docker"
+        
+        echo "====================="
+        echo "Installing VS Code..."
+        echo "====================="
+        if ! command -v code &> /dev/null; then
+            brew install --cask visual-studio-code &> /dev/null
+            echo "VS Code is installed"
+        else
+            echo "VS Code is already installed"
+        fi
+    elif [[ "$PCKM" == "apt" ]]; then
+        install_package "nodejs" "Node.js"
+        install_package "python3" "Python"
+    
+        if ! command -v docker &> /dev/null; then
+            sudo apt-get install docker.io -y &> /dev/null
+            echo "Docker is installed"
+        else
+            echo "Docker is already installed"
+        fi
+        
+        echo "====================="
+        echo "Installing VS Code..."
+        echo "====================="
+        if ! command -v code &> /dev/null; then
+
+            curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg &> /dev/null
+            echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list &> /dev/null
+            sudo apt-get update &> /dev/null
+            sudo apt-get install code -y &> /dev/null
+            echo "VS Code is installed"
+        else
+            echo "VS Code is already installed"
+        fi
+    fi
+
+}
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --help)
             show_help
             exit 0
+            ;;
+        --basic)
+            basic_setup
+            exit 0
+            ;;
+        --dev)
+            dev_setup
+            exit 0
+            ;;
     esac
 done
 
