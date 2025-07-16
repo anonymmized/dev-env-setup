@@ -12,6 +12,7 @@ show_help() {
     echo "  --dev      Install development tools (node, python, docker, vim)"
     echo "  --full     Full installation including VS Code"
     echo "  --update   Update existing packages only"
+    echo "  --dry-run  Show what will be installed without the actual installation"
 }
 detectOS() {
     case "$(uname)" in 
@@ -214,6 +215,19 @@ full_setup() {
     fi
 }
 
+dry_run() {
+    echo "The packages that will be installed:"
+    echo "1)  Node.ls"
+    echo "2)  Python"
+    echo "3)  Vim"
+    echo "4)  Docker"
+    echo "5)  VScode"
+    echo "6)  Git"
+    echo "7)  Curl"
+    echo "8)  Htop"
+    echo "9)  Tree"
+}
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --help)
@@ -234,6 +248,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --update)
             update_packages
+            exit 0
+            ;;
+        --dry-run)
+            dry_run
             exit 0
             ;;
     esac
