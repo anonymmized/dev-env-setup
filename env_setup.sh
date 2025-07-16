@@ -1,9 +1,19 @@
 #!/bin/bash
-
+# Добавить vim
 # Global variables
 OS=""
 PCKM=""
 
+show_help() {
+    echo "System Quick Setup Script"
+    echo "Usage: $0 [OPTIONS]"
+    echo "Options: "
+    echo "  --help     Show this help message"
+    echo "  --basic    Install only basic packages (git, curl, htop)"
+    echo "  --dev      Install development tools (node, python, docker)"
+    echo "  --full     Full installation including VS Code"
+    echo "  --update   Update existing packages only"
+}
 detectOS() {
     case "$(uname)" in 
         Darwin) OS="MacOS" ;;
