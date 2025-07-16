@@ -152,6 +152,15 @@ update_packages() {
     fi
 }
 
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --help)
+            show_help
+            exit 0
+    esac
+done
+
 # Main execution
-update_packages
-packages_install
+# update_packages
+# packages_install
