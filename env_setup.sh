@@ -134,6 +134,10 @@ basic_setup() {
     install_package "curl" "Curl"
     install_package "htop" "Htop"
     install_package "tree" "Tree"
+    install_package "wget" "Wget"
+    install_package "jq" "Jq"
+    install_package "unzip" "Unzip"
+    install_package "neofetch" "Neofetch"
 }
 
 dev_setup() {
@@ -151,9 +155,9 @@ dev_setup() {
         install_package "vim" "Vim"
         install_package "docker" "Docker"
         
-        echo "====================="
-        echo "Installing VS Code..."
-        echo "====================="
+        print_info "====================="
+        print_info "Installing VS Code..."
+        print_info "====================="
         if ! command -v code &> /dev/null; then
             brew install --cask visual-studio-code &> /dev/null
             print_success "VS Code is installed"
@@ -253,6 +257,10 @@ dry_run() {
     print_info "7)  Curl"
     print_info "8)  Htop"
     print_info "9)  Tree"
+    print_info "10) Wget"
+    print_info "11) Jq"
+    print_info "12) Unzip"
+    print_info "13) Neofetch"
 }
 
 while [[ $# -gt 0 ]]; do
