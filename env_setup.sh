@@ -1,6 +1,5 @@
 #!/bin/bash
-# Добавить vim
-# Global variables
+
 OS=""
 PCKM=""
 
@@ -10,7 +9,7 @@ show_help() {
     echo "Options: "
     echo "  --help     Show this help message"
     echo "  --basic    Install only basic packages (git, curl, htop)"
-    echo "  --dev      Install development tools (node, python, docker)"
+    echo "  --dev      Install development tools (node, python, docker, vim)"
     echo "  --full     Full installation including VS Code"
     echo "  --update   Update existing packages only"
 }
@@ -119,6 +118,7 @@ dev_setup() {
     if [[ "$PCKM" == "brew" ]]; then
         install_package "node" "Node.js"
         install_package "python3" "Python"
+        install_package "vim" "Vim"
         install_package "docker" "Docker"
         
         echo "====================="
@@ -133,6 +133,7 @@ dev_setup() {
     elif [[ "$PCKM" == "apt" ]]; then
         install_package "nodejs" "Node.js"
         install_package "python3" "Python"
+        install_package "vim" "Vim"
     
         if ! command -v docker &> /dev/null; then
             sudo apt-get install docker.io -y &> /dev/null
