@@ -155,7 +155,61 @@ dev_setup() {
             echo "VS Code is already installed"
         fi
     fi
+}
 
+full_setup() {
+    detectPCKM
+    if [[ "$PCKM" == "" ]]; then
+        echo "No supported package manager found"
+        return 1
+    fi
+
+    echo "Installing packages using $PCKM..."
+
+    install_package "git" "Git"
+    install_package "curl" "Curl"
+    install_package "htop" "Htop"
+    install_package "tree" "Tree"
+
+    if [[ "$PCKM" == "brew" ]]; then
+        install_package "node" "Node.js"
+        install_package "python3" "Python"
+        install_package "docker" "Docker"
+        
+        echo "====================="
+        echo "Installing VS Code..."
+        echo "====================="
+        if ! command -v code &> /dev/null; then
+            brew install --cask visual-studio-code &> /dev/null
+            echo "VS Code is installed"
+        else
+            echo "VS Code is already installed"
+        fi
+    elif [[ "$PCKM" == "apt" ]]; then
+        install_package "nodejs" "Node.js"
+        install_package "python3" "Python"
+    
+        if ! command -v docker &> /dev/null; then
+            sudo apt-get install docker.io -y &> /dev/null
+            echo "Docker is installed"
+        else
+            echo "Docker is already installed"
+        fi
+        
+        echo "====================="
+        echo "Installing VS Code..."
+        echo "====================="
+        if ! command -v code &> /dev/null; then
+
+            curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg &> /dev/null
+            echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list &> /dev/null
+            sudo apt-get update &> /dev/null
+            sudo apt-get install code -y &> /dev/null
+            echo "VS Code is installed"
+        else
+            echo "VS Code is already installed"
+        fi
+    fi
 }
 
 while [[ $# -gt 0 ]]; do
@@ -172,6 +226,11 @@ while [[ $# -gt 0 ]]; do
             dev_setup
             exit 0
             ;;
+        --full)
+            full_setup
+            exit 0
+            ;;
+
     esac
 done
 
