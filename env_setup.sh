@@ -164,6 +164,7 @@ full_setup() {
         return 1
     fi
 
+    echo "Installation of all tools"
     echo "Installing packages using $PCKM..."
 
     install_package "git" "Git"
@@ -230,10 +231,9 @@ while [[ $# -gt 0 ]]; do
             full_setup
             exit 0
             ;;
-
+        --update)
+            update_packages
+            exit 0
+            ;;
     esac
 done
-
-# Main execution
-# update_packages
-# packages_install
