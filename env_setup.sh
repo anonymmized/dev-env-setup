@@ -36,8 +36,9 @@ show_help() {
     print_info "Usage: $0 [OPTIONS]"
     print_info "Options: "
     print_info "  --help     Show this help message"
-    print_info "  --basic    Install only basic packages (git, curl, htop)"
+    print_info "  --basic    Install only basic packages (git, htop, tree, wget, jq)"
     print_info "  --dev      Install development tools (node, python, docker, vim)"
+    print_info "  --langs    Install programming languages (go, rust, java, ruby, php)"
     print_info "  --full     Full installation including VS Code"
     print_info "  --update   Update existing packages only"
     print_info "  --dry-run  Show what will be installed without the actual installation"
@@ -147,13 +148,15 @@ dev_setup() {
         return 1
     fi
 
-    print_info "Installing packages using $PCKM..."
+    print_info "Installing development tools using $PCKM..."
 
     if [[ "$PCKM" == "brew" ]]; then
         install_package "node" "Node.js"
         install_package "python3" "Python"
         install_package "vim" "Vim"
         install_package "docker" "Docker"
+        install_package "tmux" "Tmux"
+        install_package "gh" "GitHub CLI"
         
         print_info "====================="
         print_info "Installing VS Code..."
@@ -168,6 +171,7 @@ dev_setup() {
         install_package "nodejs" "Node.js"
         install_package "python3" "Python"
         install_package "vim" "Vim"
+        install_package "tmux" "Tmux"
     
         if ! command -v docker &> /dev/null; then
             sudo apt-get install docker.io -y &> /dev/null
@@ -176,17 +180,93 @@ dev_setup() {
             print_success "Docker is already installed"
         fi
         
+        # GitHub CLI
+        if ! command -v gh &> /dev/null; then
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg &> /dev/null
+            sudo apt-get update &> /dev/null
+            sudo apt-get install gh -y &> /dev/null
+            print_success "GitHub CLI is installed"
+        else
+            print_success "GitHub CLI is already installed"
+        fi
+        
         print_info "====================="
         print_info "Installing VS Code..."
         print_info "====================="
         if ! command -v code &> /dev/null; then
-
             curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg &> /dev/null
             sudo apt-get update &> /dev/null
             sudo apt-get install code -y &> /dev/null
             print_success "VS Code is installed"
         else
             print_success "VS Code is already installed"
+        fi
+    fi
+}
+
+langs_setup() {
+    detectPCKM
+    if [[ "$PCKM" == "" ]]; then
+        print_error "No supported package manager found"
+        return 1
+    fi
+
+    print_info "Installing programming languages using $PCKM..."
+
+    if [[ "$PCKM" == "brew" ]]; then
+        install_package "go" "Go"
+        install_package "rust" "Rust"
+        install_package "ruby" "Ruby"
+        install_package "php" "PHP"
+        
+        # Java JDK
+        if ! command -v java &> /dev/null; then
+            brew install --cask temurin &> /dev/null
+            print_success "Java JDK is installed"
+        else
+            print_success "Java JDK is already installed"
+        fi
+        
+    elif [[ "$PCKM" == "apt" ]]; then
+        install_package "golang-go" "Go"
+        install_package "rustc" "Rust"
+        install_package "ruby" "Ruby"
+        install_package "php" "PHP"
+        
+        # Java JDK
+        if ! command -v java &> /dev/null; then
+            sudo apt-get install openjdk-11-jdk -y &> /dev/null
+            print_success "Java JDK is installed"
+        else
+            print_success "Java JDK is already installed"
+        fi
+        
+    elif [[ "$PCKM" == "dnf" ]]; then
+        install_package "golang" "Go"
+        install_package "rust" "Rust"
+        install_package "ruby" "Ruby"
+        install_package "php" "PHP"
+        
+        # Java JDK
+        if ! command -v java &> /dev/null; then
+            sudo dnf install java-11-openjdk-devel -y &> /dev/null
+            print_success "Java JDK is installed"
+        else
+            print_success "Java JDK is already installed"
+        fi
+        
+    elif [[ "$PCKM" == "yum" ]]; then
+        install_package "golang" "Go"
+        install_package "rust" "Rust"
+        install_package "ruby" "Ruby"
+        install_package "php" "PHP"
+        
+        # Java JDK
+        if ! command -v java &> /dev/null; then
+            sudo yum install java-11-openjdk-devel -y &> /dev/null
+            print_success "Java JDK is installed"
+        else
+            print_success "Java JDK is already installed"
         fi
     fi
 }
@@ -275,6 +355,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --dev)
             dev_setup
+            exit 0
+            ;;
+        --langs)
+            langs_setup
             exit 0
             ;;
         --full)
