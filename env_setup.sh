@@ -180,7 +180,6 @@ dev_setup() {
             print_success "Docker is already installed"
         fi
         
-        # GitHub CLI
         if ! command -v gh &> /dev/null; then
             curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg &> /dev/null
             sudo apt-get update &> /dev/null
@@ -219,7 +218,6 @@ langs_setup() {
         install_package "ruby" "Ruby"
         install_package "php" "PHP"
         
-        # Java JDK
         if ! command -v java &> /dev/null; then
             brew install --cask temurin &> /dev/null
             print_success "Java JDK is installed"
@@ -233,7 +231,6 @@ langs_setup() {
         install_package "ruby" "Ruby"
         install_package "php" "PHP"
         
-        # Java JDK
         if ! command -v java &> /dev/null; then
             sudo apt-get install openjdk-11-jdk -y &> /dev/null
             print_success "Java JDK is installed"
@@ -247,7 +244,6 @@ langs_setup() {
         install_package "ruby" "Ruby"
         install_package "php" "PHP"
         
-        # Java JDK
         if ! command -v java &> /dev/null; then
             sudo dnf install java-11-openjdk-devel -y &> /dev/null
             print_success "Java JDK is installed"
@@ -261,7 +257,6 @@ langs_setup() {
         install_package "ruby" "Ruby"
         install_package "php" "PHP"
         
-        # Java JDK
         if ! command -v java &> /dev/null; then
             sudo yum install java-11-openjdk-devel -y &> /dev/null
             print_success "Java JDK is installed"
@@ -327,20 +322,25 @@ full_setup() {
 }
 
 dry_run() {
-    print_info "The packages that will be installed:"
-    print_info "1)  Node.ls"
-    print_info "2)  Python"
-    print_info "3)  Vim"
-    print_info "4)  Docker"
-    print_info "5)  VScode"
-    print_info "6)  Git"
-    print_info "7)  Curl"
-    print_info "8)  Htop"
-    print_info "9)  Tree"
-    print_info "10) Wget"
-    print_info "11) Jq"
-    print_info "12) Unzip"
-    print_info "13) Neofetch"
+    print_info "Available installation categories:"
+    print_info ""
+    print_info "📦 --basic (Basic utilities):"
+    print_info "   • Git, Htop, Tree, Wget, Jq, Unzip, Neofetch"
+    print_info ""
+    print_info "🛠️  --dev (Development tools):"
+    print_info "   • Node.js, Python, Vim, Docker, Tmux, GitHub CLI, VS Code"
+    print_info ""
+    print_info "🔤 --langs (Programming languages):"
+    print_info "   • Go, Rust, Java JDK, Ruby, PHP"
+    print_info ""
+    print_info "🎯 --full (Full installation):"
+    print_info "   • Includes all basic utilities + development tools"
+    print_info ""
+    print_info "Usage examples:"
+    print_info "   ./env_setup.sh --basic"
+    print_info "   ./env_setup.sh --dev"
+    print_info "   ./env_setup.sh --langs"
+    print_info "   ./env_setup.sh --full"
 }
 
 while [[ $# -gt 0 ]]; do
